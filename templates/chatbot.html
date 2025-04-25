@@ -42,26 +42,36 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- ✅ Load the Markdown parser -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const chatInput = document.getElementById('chat-input');
         const sendMessage = document.getElementById('send-message');
         const chatMessages = document.getElementById('chat-messages');
-        const languageSelect = document.getElementById('language'); // Get language selection dropdown
+        const languageSelect = document.getElementById('language');
 
         function addMessage(message, isUser) {
             const messageDiv = document.createElement('div');
             messageDiv.className = isUser 
                 ? 'bg-gray-200 text-gray-800 p-3 rounded-lg mb-3 max-w-[80%] ml-auto'
                 : 'bg-primary text-white p-3 rounded-lg mb-3 max-w-[80%]';
-            messageDiv.textContent = message;
+
+            if (isUser) {
+                messageDiv.textContent = message; // User message is plain
+            } else {
+                messageDiv.innerHTML = marked.parse(message); // AI message is Markdown → HTML
+            }
+
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         sendMessage.addEventListener('click', async () => {
             const message = chatInput.value.trim();
-            const selectedLanguage = languageSelect.value; // Get selected language
+            const selectedLanguage = languageSelect.value;
+
             if (message) {
                 addMessage(message, true);
                 chatInput.value = '';
@@ -70,12 +80,12 @@
                     const response = await fetch('/api/chat', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message, language: selectedLanguage }), // Send language to API
+                        body: JSON.stringify({ message, language: selectedLanguage }),
                     });
 
                     if (response.ok) {
                         const data = await response.json();
-                        addMessage(data.response, false);
+                        addMessage(data.response, false); // Render response with Markdown formatting
                     } else {
                         addMessage('Sorry, I was unable to process your request. Please try again later.', false);
                     }

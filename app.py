@@ -29,7 +29,7 @@ else:
     twilio_client = None
     twilio_phone_number = None
 
-genai.configure(api_key='your_api_key_here')  # Replace with your API key
+genai.configure(api_key='AIzaSyDTYfAqTDyZTy6p01Kyzu7B8oE1UUQ_X1s')  # Replace with your API key
 gemini_model = genai.GenerativeModel('gemini-2.0-flash')
 
 def login_required(user_type=None):
